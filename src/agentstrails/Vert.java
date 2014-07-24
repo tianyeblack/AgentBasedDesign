@@ -19,12 +19,11 @@ class Vert {
 	
 	void run() {
 		display();
-		brush.setSize(80);
-		brush.drawAtAbsolutePos(pos, .2f);
+		brush.drawAtAbsolutePos(pos, 1f);
 	}
 	
 	void display() {    
-		parent.stroke(150, 145);
+		parent.stroke(255, 0, 0);
 		parent.strokeWeight(1);
 		parent.point(pos.x, pos.y, pos.z);
 	}

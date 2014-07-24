@@ -11,6 +11,7 @@ import toxi.geom.*;
 import toxi.geom.mesh.TriangleMesh;
 import toxi.processing.ToxiclibsSupport;
 import toxi.volume.*;
+import controlP5.*;
 
 @SuppressWarnings({"unused", "serial"})
 
@@ -23,7 +24,8 @@ public class AgentsTrails extends PApplet {
 	TriangleMesh mesh = new TriangleMesh("mesh");
 
 	ToxiclibsSupport gfx;
-	boolean record=false;
+	ControlP5 ui;
+	
 	int counter=0;
 	//Mesh variables
 	ArrayList<Vert> vertices;
@@ -34,16 +36,19 @@ public class AgentsTrails extends PApplet {
 	int pop=600;
 
 	boolean runToggle = true;
-	boolean capture= false;
+	boolean capture = false;
+	boolean record = false;
+	boolean strok = false;
+	boolean compute = true;
 
 	int bX = 1000;
 	int bY = 2000;
 	int bZ = 200;
-	float ISO= 1.0f;
+	float ISO= 0.5f;
 	//Affects the resolution and the FrameRate
 	int GRID = 300;
 	// Dimensions of the space we are working
-	int DIM = 4000;
+	int DIM = 1500;
 	float alignment = 0.00025f;
 	float cohesion = 0.0025f;
 	float separation = 0.5f;
@@ -129,16 +134,20 @@ public class AgentsTrails extends PApplet {
 
 		volume = new VolumetricSpaceArray(SCALE, GRID, GRID, GRID);
 		surface = new ArrayIsoSurface(volume);
-		brush = new BoxBrush(volume, SCALE.x / 2);
+		brush = new RoundBrush(volume, 5f);
 
 		gfx = new ToxiclibsSupport(this);
+		ui = new ControlP5(this);
+		ui.setAutoDraw(false);
 		//cam.rotateX(-.3*PI);
 		//cam.rotateY(PI);
 		vertices = new ArrayList<Vert>();
 		agents = new ArrayList<Agent>();
 		getTXT();
-		println(vertices.size());
+		//		println(vertices.size());
 		createAgents(3);
+
+		ui.addSlider("ISO",0,1,ISO,20,20,300,14);
 	}
 
 	public void draw() {
@@ -152,15 +161,24 @@ public class AgentsTrails extends PApplet {
 		lights();
 		displayVerts();
 		runAgents();
-//		noStroke();
-		strokeWeight(1);
 
-		//rect(0,0,1000,1000);
-//		if (frameCount % 5 == 0 && runToggle) {
+		stroke(0, 192, 192);
+		strokeWeight(1f);
+		noFill();
+		// A bounding box for a better view 
+		box(1000);
+
+		if (frameCount % 5 == 0 && compute) {
 			surface.reset();
 			surface.computeSurfaceMesh(mesh, ISO);
-//		}
-//		fill(160);
+		}
+
+		if (strok) {
+			stroke(0.4f);
+		} else {
+			noStroke();
+			fill(128);
+		}
 		gfx.mesh(mesh, true);
 		if (frameCount == 1 || (frameCount % 20 == 0 && frameCount < 2500)) {
 			exportText();
@@ -169,12 +187,26 @@ public class AgentsTrails extends PApplet {
 			endRaw();
 			record = false;
 		}
+		if (ui.window(this).isMouseOver()) {
+			cam.setActive(false);
+		} else {
+			cam.setActive(true);
+		}
+		gui();
+	}
+
+	void gui() {
+		hint(DISABLE_DEPTH_TEST);
+		cam.beginHUD();
+		ui.draw();
+		cam.endHUD();
+		hint(ENABLE_DEPTH_TEST);
 	}
 
 	public void keyPressed() {
 		if (key=='s'){
 			mesh.saveAsSTL(sketchPath(mesh.name + frameCount+ counter + ".stl"));
-			counter= counter+1;
+			counter = counter + 1;
 			println ("Saved Successfull");
 		}
 		if (key=='e' || key== 'E') {
@@ -183,14 +215,20 @@ public class AgentsTrails extends PApplet {
 			println("saved a frame");
 		}
 		if (key=='r') {
-			capture=true;
+			capture= !capture;
 		}
 		if (key == 'n') {
 			for (Agent a : agents) a.runToggle = !a.runToggle;
-			runToggle=!runToggle;
+			runToggle = !runToggle;
 		}
 		if (key == 'p') {
-			record=true;
+			record= !record;
+		}
+		if (key == 'k') {
+			strok = !strok;
+		}
+		if (key == 'c') {
+			compute = !compute;
 		}
 	}
 
