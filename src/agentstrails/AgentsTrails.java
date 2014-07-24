@@ -39,7 +39,7 @@ public class AgentsTrails extends PApplet {
 	int bX = 1000;
 	int bY = 2000;
 	int bZ = 200;
-	float ISO= 0.1f;
+	float ISO= 1.0f;
 	//Affects the resolution and the FrameRate
 	int GRID = 300;
 	// Dimensions of the space we are working
@@ -52,7 +52,7 @@ public class AgentsTrails extends PApplet {
 	void createAgents(int type) {
 		if (pop>vertices.size()) {
 			pop=vertices.size();
-			println("agent population is" + pop);  
+			println("agent population is " + pop);  
 		}
 		if (type==1) {
 			int ID;
@@ -118,9 +118,7 @@ public class AgentsTrails extends PApplet {
 	}
 
 	void displayVerts() {
-		for (Vert v : vertices) {
-			v. display();
-		}
+		for (Vert v : vertices) v. display();
 	}
 
 	public void setup() {
@@ -131,7 +129,7 @@ public class AgentsTrails extends PApplet {
 
 		volume = new VolumetricSpaceArray(SCALE, GRID, GRID, GRID);
 		surface = new ArrayIsoSurface(volume);
-		brush = new RoundBrush(volume, SCALE.x / 2);
+		brush = new BoxBrush(volume, SCALE.x / 2);
 
 		gfx = new ToxiclibsSupport(this);
 		//cam.rotateX(-.3*PI);
@@ -154,18 +152,17 @@ public class AgentsTrails extends PApplet {
 		lights();
 		displayVerts();
 		runAgents();
-		noStroke();
-		//strokeWeight(1);
+//		noStroke();
+		strokeWeight(1);
 
 		//rect(0,0,1000,1000);
-		if (frameCount % 5 == 0 && runToggle) {
+//		if (frameCount % 5 == 0 && runToggle) {
 			surface.reset();
 			surface.computeSurfaceMesh(mesh, ISO);
-		}
-		fill(160);
-		//strokeWeight(0.5f);
+//		}
+//		fill(160);
 		gfx.mesh(mesh, true);
-		if (frameCount == 1 || (frameCount % 40 ==0 && frameCount<2500)) {
+		if (frameCount == 1 || (frameCount % 20 == 0 && frameCount < 2500)) {
 			exportText();
 		}
 		if (record) {

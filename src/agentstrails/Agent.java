@@ -104,7 +104,7 @@ class Agent {
 //				parent.popMatrix();
 //			}
 			parent.stroke(0, 255, 0);
-			parent.strokeWeight(5);
+			parent.strokeWeight(1);
 //			for (Vec3D v : trail) {
 //				parent.point(v.x, v.y, v.z);
 //				brush.setSize(0.3f);
@@ -114,7 +114,7 @@ class Agent {
 				Vec3D v = trail.get(i);
 				parent.point(v.x(), v.y(), v.z());
 				brush.setSize(1f);
-				brush.drawAtAbsolutePos(v, 1.0f);
+				brush.drawAtAbsolutePos(v, 0.5f);
 			}
 		}
 	}
