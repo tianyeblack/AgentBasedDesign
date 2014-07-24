@@ -105,10 +105,16 @@ class Agent {
 //			}
 			parent.stroke(0, 255, 0);
 			parent.strokeWeight(5);
-			for (Vec3D v : trail) {
-				parent.point(v.x, v.y, v.z);
-				brush.setSize(0.3f);
-				brush.drawAtAbsolutePos(v, .9f);
+//			for (Vec3D v : trail) {
+//				parent.point(v.x, v.y, v.z);
+//				brush.setSize(0.3f);
+//				brush.drawAtAbsolutePos(v, .9f);
+//			}
+			for (int i = 0; i < trail.size() - 4; i += 4) {
+				Vec3D v = trail.get(i);
+				parent.point(v.x(), v.y(), v.z());
+				brush.setSize(1f);
+				brush.drawAtAbsolutePos(v, 1.0f);
 			}
 		}
 	}
