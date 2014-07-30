@@ -22,7 +22,8 @@ public class AgentsTrails extends PApplet {
 	VolumetricSpaceArray volume;
 	IsoSurface surface;
 	TriangleMesh mesh = new TriangleMesh("mesh");
-
+	TriangleMesh meshA = new TriangleMesh("meshA");
+	TriangleMesh meshB = new TriangleMesh("meshB");
 	ToxiclibsSupport gfx;
 	ControlP5 ui;
 	
@@ -34,63 +35,74 @@ public class AgentsTrails extends PApplet {
 	//Agents variables
 	ArrayList<Agent> agents;
 	int pop=600;
-
 	boolean runToggle = true;
 	boolean capture = false;
 	boolean record = false;
 	boolean strok = false;
 	boolean compute = true;
 
-	int bX = 1000;
+	//Box size
+	int bX = 3000;
 	int bY = 2000;
-	int bZ = 200;
+	int bZ = 1000;
+	//Affects the mesh	
 	float ISO= 0.5f;
 	//Affects the resolution and the FrameRate
 	int GRID = 300;
 	// Dimensions of the space we are working
-	int DIM = 1500;
-	float alignment = 0.00025f;
-	float cohesion = 0.0025f;
-	float separation = 0.5f;
-	Vec3D SCALE = new Vec3D(DIM, DIM, DIM);
+	int DIM = 3000;
+	//level where agents of type 1 are being created 
+	int creationLevel=50;
 
+	Vec3D SCALE = new Vec3D(DIM, DIM, DIM);
+	String agentType;
+	
+	int type ; 
+	
 	void createAgents(int type) {
 		if (pop>vertices.size()) {
 			pop=vertices.size();
 			println("agent population is " + pop);  
 		}
+		//create agents at a certain level	
 		if (type==1) {
 			int ID;
 			for (int i = 0; i<pop; i++) {
 				ID=i;
 				Vert v = (Vert) vertices.get(ID);
 				Vec3D vec = v.getLocation();
-				if (vec.z<30) {
-					Agent myAgent= new Agent(vertices, agents, scores, ID, brush, this);//We create an instance of the class. We name it myAgent.
+				if (vec.z<creationLevel) {
+					Agent myAgent= new Agent(vertices, agents, scores, ID, brush, this, "a");//We create an instance of the class. We name it myAgent.
 					agents.add(myAgent);//We add the created instance of the Agent class to the ArrayList.
 				}
 			}
 		}
+		//create agents from random points of the environment
 		if (type==2) {
 			for (int i = 0; i<pop; i++) {
-				Agent myAgent= new Agent(vertices, agents, scores, (int)(random(vertices.size())), brush, this);//We create an instance of the class. We name it myAgent.
+				Agent myAgent= new Agent(vertices, agents, scores, (int)(random(vertices.size())), brush, this, "b");//We create an instance of the class. We name it myAgent.
 				agents.add(myAgent);//We add the created instance of the Agent class to the ArrayList.
 			}
 		}
+		//create agents from all points of the environment
 		if (type==3) {
 			for (int i = 0; i<vertices.size(); i++) {
-				Agent myAgent= new Agent(vertices, agents, scores, i, brush, this);//We create an instance of the class. We name it myAgent.
-				agents.add(myAgent);//We add the created instance of the Agent class to the ArrayList.
+				Agent myAgent= new Agent(vertices, agents, scores, i, brush, this, "c");
+				agents.add(myAgent);
 			}
 		}
 
 		println(agents.size());
 	}
 
+	
+	///RUN AGEnts
 	void runAgents() {
 		for (Agent a : agents) a.run();
 	}
 
+	
+////Export the positions of the agents
 	void exportText() {
 		output = createWriter("output/agentPositions" + frameCount + ".txt"); 
 		int count = 0 ;
@@ -101,13 +113,12 @@ public class AgentsTrails extends PApplet {
 		output.close();
 	}
 
-	void getTXT() {
+	/////Import Environment/Geometry
+	
+	void getGeometry() {
 
-		//import thr whole SuRFACE
-		// String lines[] = loadStrings("Catenary_relaxed_srf_sun_Analysis01.txt");
-		//////import on arch
-		//String lines[] = loadStrings("Romantso_relaxed_srf_with_components_sun_Analysis07.txt");
-		String lines[] = loadStrings("catenary_mesh_relaxed_01.txt");
+		//import the whole SuRFACE
+		String lines[] = loadStrings("catenary_mesh_relaxed_03a.txt");
 		println("there are " + lines.length + " lines in the elevation point file...");
 		scores = new float[lines.length];
 		for (int i=0; i<lines.length;i++) {
@@ -121,20 +132,25 @@ public class AgentsTrails extends PApplet {
 			scores[i]=new Float(parts[1]);
 		}
 	}
+	
+/////Display imported Environment
 
 	void displayVerts() {
 		for (Vert v : vertices) v. display();
 	}
 
+////////////////////////////////////////////////////////////////////////////////////////////
+/////Main Program
+	
 	public void setup() {
 		size(1200, 800, OPENGL);
 		smooth();
-		cam = new PeasyCam(this, 800);
-		cam.lookAt(400, 0, 0);
+		cam = new PeasyCam(this, 600);
+		cam.lookAt(800, -200, 800);
 
 		volume = new VolumetricSpaceArray(SCALE, GRID, GRID, GRID);
 		surface = new ArrayIsoSurface(volume);
-		brush = new RoundBrush(volume, 5f);
+		brush = new RoundBrush(volume, 3f);
 
 		gfx = new ToxiclibsSupport(this);
 		ui = new ControlP5(this);
@@ -143,8 +159,12 @@ public class AgentsTrails extends PApplet {
 		//cam.rotateY(PI);
 		vertices = new ArrayList<Vert>();
 		agents = new ArrayList<Agent>();
-		getTXT();
-		//		println(vertices.size());
+		getGeometry();
+		println(vertices.size());
+		
+		
+		createAgents(1);
+		createAgents(2);
 		createAgents(3);
 
 		ui.addSlider("ISO",0,1,ISO,20,20,300,14);
@@ -161,25 +181,31 @@ public class AgentsTrails extends PApplet {
 		lights();
 		displayVerts();
 		runAgents();
-
-		stroke(0, 192, 192);
-		strokeWeight(1f);
+		
+		// A bounding box for a better view 		
+		stroke(0, 0, 192);
+		strokeWeight(.5f);
 		noFill();
-		// A bounding box for a better view 
-		box(1000);
+		box(bX,bY,bZ);
 
 		if (frameCount % 5 == 0 && compute) {
 			surface.reset();
 			surface.computeSurfaceMesh(mesh, ISO);
+	
 		}
 
 		if (strok) {
-			stroke(0.4f);
+			stroke(0.1f);
 		} else {
-			noStroke();
-			fill(128);
+				noStroke();
+				fill(80);	
+				
 		}
 		gfx.mesh(mesh, true);
+	
+		
+		
+		
 		if (frameCount == 1 || (frameCount % 20 == 0 && frameCount < 2500)) {
 			exportText();
 		}
