@@ -12,18 +12,23 @@ import toxi.geom.mesh.TriangleMesh;
 import toxi.processing.ToxiclibsSupport;
 import toxi.volume.*;
 import controlP5.*;
-
 @SuppressWarnings({"unused", "serial"})
 
 public class AgentsTrails extends PApplet {
 	PeasyCam cam;
 	PrintWriter output;
-	VolumetricBrush brush;
-	VolumetricSpaceArray volume;
-	IsoSurface surface;
-	TriangleMesh mesh = new TriangleMesh("mesh");
+	VolumetricBrush brushA;
+	VolumetricBrush brushB;
+	VolumetricBrush brushC;
+	VolumetricSpaceArray volumeA;
+	VolumetricSpaceArray volumeB;
+	VolumetricSpaceArray volumeC;
+	IsoSurface surfaceA;
+	IsoSurface surfaceB;
+	IsoSurface surfaceC;
 	TriangleMesh meshA = new TriangleMesh("meshA");
 	TriangleMesh meshB = new TriangleMesh("meshB");
+	TriangleMesh meshC = new TriangleMesh("meshC");
 	ToxiclibsSupport gfx;
 	ControlP5 ui;
 	
@@ -34,7 +39,7 @@ public class AgentsTrails extends PApplet {
 
 	//Agents variables
 	ArrayList<Agent> agents;
-	int pop=600;
+	int pop=50;
 	boolean runToggle = true;
 	boolean capture = false;
 	boolean record = false;
@@ -72,7 +77,7 @@ public class AgentsTrails extends PApplet {
 				Vert v = (Vert) vertices.get(ID);
 				Vec3D vec = v.getLocation();
 				if (vec.z<creationLevel) {
-					Agent myAgent= new Agent(vertices, agents, scores, ID, brush, this, "a");//We create an instance of the class. We name it myAgent.
+					Agent myAgent= new Agent(vertices, agents, scores, ID, brushA, this, "a");//We create an instance of the class. We name it myAgent.
 					agents.add(myAgent);//We add the created instance of the Agent class to the ArrayList.
 				}
 			}
@@ -80,14 +85,14 @@ public class AgentsTrails extends PApplet {
 		//create agents from random points of the environment
 		if (type==2) {
 			for (int i = 0; i<pop; i++) {
-				Agent myAgent= new Agent(vertices, agents, scores, (int)(random(vertices.size())), brush, this, "b");//We create an instance of the class. We name it myAgent.
+				Agent myAgent= new Agent(vertices, agents, scores, (int)(random(vertices.size())), brushB, this, "b");//We create an instance of the class. We name it myAgent.
 				agents.add(myAgent);//We add the created instance of the Agent class to the ArrayList.
 			}
 		}
 		//create agents from all points of the environment
 		if (type==3) {
 			for (int i = 0; i<vertices.size(); i++) {
-				Agent myAgent= new Agent(vertices, agents, scores, i, brush, this, "c");
+				Agent myAgent= new Agent(vertices, agents, scores, i, brushC, this, "c");
 				agents.add(myAgent);
 			}
 		}
@@ -127,7 +132,7 @@ public class AgentsTrails extends PApplet {
 			parts[0]=parts[0].substring(1);  
 			String coordinates[]=split(parts[0], ", ");
 			//println("the X is: "+coordinates[0]+"the Y is: "+coordinates[1]+"the Z is: "+coordinates[2]+","+"the score is: "+parts[1]);
-			Vert newVert = new Vert(new Vec3D(Float.parseFloat(coordinates[0]), Float.parseFloat(coordinates[1]), Float.parseFloat(coordinates[2])), i, brush, this);
+			Vert newVert = new Vert(new Vec3D(Float.parseFloat(coordinates[0]), Float.parseFloat(coordinates[1]), Float.parseFloat(coordinates[2])), i, brushA, this);
 			vertices.add(newVert);
 			scores[i]=new Float(parts[1]);
 		}
@@ -137,6 +142,7 @@ public class AgentsTrails extends PApplet {
 
 	void displayVerts() {
 		for (Vert v : vertices) v. display();
+		
 	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,10 +154,17 @@ public class AgentsTrails extends PApplet {
 		cam = new PeasyCam(this, 600);
 		cam.lookAt(800, -200, 800);
 
-		volume = new VolumetricSpaceArray(SCALE, GRID, GRID, GRID);
-		surface = new ArrayIsoSurface(volume);
-		brush = new RoundBrush(volume, 3f);
-
+		volumeA = new VolumetricSpaceArray(SCALE, GRID, GRID, GRID);
+		volumeB = new VolumetricSpaceArray(SCALE, GRID, GRID, GRID);
+		volumeC = new VolumetricSpaceArray(SCALE, GRID, GRID, GRID);
+		surfaceA = new ArrayIsoSurface(volumeA);
+		surfaceB = new ArrayIsoSurface(volumeB);
+		surfaceC = new ArrayIsoSurface(volumeC);
+		brushA = new RoundBrush(volumeA, 3f);
+		brushB = new RoundBrush(volumeB, 2f);
+		brushC = new RoundBrush(volumeC, 4f);
+		
+		
 		gfx = new ToxiclibsSupport(this);
 		ui = new ControlP5(this);
 		ui.setAutoDraw(false);
@@ -189,24 +202,37 @@ public class AgentsTrails extends PApplet {
 		box(bX,bY,bZ);
 
 		if (frameCount % 5 == 0 && compute) {
-			surface.reset();
-			surface.computeSurfaceMesh(mesh, ISO);
-	
+			surfaceA.reset();
+			surfaceA.computeSurfaceMesh(meshA, ISO);
+			
+			surfaceB.reset();
+			surfaceB.computeSurfaceMesh(meshB, ISO);
+			
+			surfaceC.reset();
+			surfaceC.computeSurfaceMesh(meshC, ISO);
 		}
 
 		if (strok) {
 			stroke(0.1f);
 		} else {
+			
 				noStroke();
-				fill(80);	
+				fill(80);			
+				gfx.mesh(meshA, true);
 				
+				noStroke();
+				fill(255,0,0);	
+				gfx.mesh(meshB, true);
+				
+				noStroke();
+				fill(0,255,0);	
+				gfx.mesh(meshC, true);
 		}
-		gfx.mesh(mesh, true);
-	
+
 		
 		
 		
-		if (frameCount == 1 || (frameCount % 20 == 0 && frameCount < 2500)) {
+		if (frameCount == 1 || (frameCount % 20 == 0 && frameCount < 1000)) {
 			exportText();
 		}
 		if (record) {
@@ -231,7 +257,7 @@ public class AgentsTrails extends PApplet {
 
 	public void keyPressed() {
 		if (key=='s'){
-			mesh.saveAsSTL(sketchPath(mesh.name + frameCount+ counter + ".stl"));
+			meshA.saveAsSTL(sketchPath(meshA.name + frameCount+ counter + ".stl"));
 			counter = counter + 1;
 			println ("Saved Successfull");
 		}

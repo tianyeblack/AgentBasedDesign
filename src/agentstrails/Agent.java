@@ -9,6 +9,7 @@ import toxi.volume.VolumetricBrush;
 class Agent {
 	PApplet parent;
 	VolumetricBrush brush;
+	
 	int ID;
 	Vec3D loc;// loc.
 	Vec3D vel;
@@ -16,7 +17,7 @@ class Agent {
 	Vec3D start;
 
 	float maxvel = 2;// A floating variable for the maximum speed.
-	float maxForce = 10;
+	float maxForce = 20;
 	boolean runToggle = true;
 
 
@@ -34,19 +35,19 @@ class Agent {
 	// basic flocking functions magnitude
 	float alignment = .03f;
 	float cohesion = .9f;
-	float separation = 0f;
+	float separation = 100f;
 	
 	//added behavior functions' magnitude
-	float faceAttraction = .2f;
-	float onSrfMotion=.05f;
+	float faceAttraction = 30f;
+	float onSrfMotion=30f;
 	float trailFollow=.05f;
 	
 	//Field Of View for alignment function
-	int fovAlign=100;
+	int fovAlign=1;
 	//Field Of View for cohesion function
-	int fovCoh = 200;
+	int fovCoh = 2;
 	//Field Of View for separation function
-	int fovSep = 200;
+	int fovSep = 3;
 	//field of view for Sun Analysis
 	int fovScore = 300;
 	//distance between agents
@@ -72,7 +73,7 @@ class Agent {
 		loc = vertices.get(ID).getLocation();
 		start = loc.copy();
 		if (agentType.equals("a")) {
-			vel = new Vec3D( 0, 0,parent.random(-1, 1));// velocity.
+			vel = new Vec3D( parent.random(-2, 2), parent.random(-2, 2),parent.random(0, 2));// velocity.
 		}else if (agentType.equals("b")){
 			vel = new Vec3D( parent.random(-4, 4), parent.random(-4, 4),0);// velocity.
 		}else if (agentType.equals("c")){
@@ -90,19 +91,24 @@ class Agent {
 	void run() {
 		if (runToggle == true) {
 			update();
-			flock();// flock contains three functions, separation, cohesion, alignment.	
 			display();
-			dropTrail(every, trailNum);
-
+			if (agentType.equals("a") ||agentType.equals("b")) {
+			flock();// flock contains three functions, separation, cohesion, alignment.	
+			AgentConnection();
+			}
+	
 			//ATTRACT TOWARDS EVERY MESH POINT
 			attractFaces(faceAttraction);
-
+			
+			if (agentType.equals("c") ) {
 			//ATTRACT TOWARDS POINT WITH HIGHEST SCORE WITHIN FIELD OF VIEW->FOVSCORE
 			 moveOnSrf(onSrfMotion);
 			 followTrails(trailFollow);
-		}
-		//drawTrail(thresh);
-		 drawBoxes(thresh);
+			}
+			}
+		dropTrail(every, trailNum);
+		drawTrail(thresh);
+		// drawBoxes(thresh);
 	}
 
 	
@@ -112,6 +118,26 @@ class Agent {
 		cohesion(cohesion);
 		alignment(alignment);
 	}
+	
+	
+	  void AgentConnection() {
+		    
+			
+			for (Agent a : agents) { 
+	         
+	            float obDist = loc.distanceTo(a.loc);
+	            if ((obDist>10) && (obDist<20)) {
+	             // a.tag ="BB";
+	              //vel.scaleSelf(0.9f);
+	              parent.strokeWeight(1);
+	              parent.stroke(150, 80);
+	              parent.line(loc.x, loc.y, loc.z, a.loc.x, a.loc.y, a.loc.z);
+	            
+	            }
+	        
+	      }
+	    
+	  }
 	
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,9 +154,15 @@ class Agent {
 	void display() {
 		if (this.agentType.equals("a")) {
 		parent.stroke(0, 250, 0);// fill color, a dark green.
-		parent.strokeWeight(2);// no stroke for the shape.
+		parent.strokeWeight(4);// no stroke for the shape.
 		parent.point(loc.x, loc.y, loc.z);// an ellipse with center in the loc vector's coordinates, and 4 units wide and 4 units tall.
 		}
+		if (this.agentType.equals("a")) {
+			parent.stroke(0,0,250);// fill color, a dark green.
+			parent.strokeWeight(4);// no stroke for the shape.
+			parent.point(loc.x, loc.y, loc.z);// an ellipse with center in the loc vector's coordinates, and 4 units wide and 4 units tall.
+			}
+		
 		if (this.agentType.equals("c")) {
 			parent.stroke(255, 255, 0);// fill color, a dark green.
 			parent.strokeWeight(1);// no stroke for the shape.
@@ -208,9 +240,12 @@ class Agent {
 				
 			}
 			for (Vec3D v : trail) {
+		
 				parent.point(v.x, v.y, v.z);
 				brush.setSize(isoBrushSize);
 				brush.drawAtAbsolutePos(v, isoBrushDensity);
+			
+				
 			}
 
 		}
@@ -234,7 +269,7 @@ class Agent {
 					localHighScore = scores[i];
 					Vert localMax = (Vert) vertices.get(highID);
 					float dis = loc.distanceTo(localMax.getLocation());
-					if (thisScore == localHighScore && dis < 40) {
+					if (thisScore == localHighScore && dis < 10) {
 						runToggle = false;
 					}
 				}
@@ -256,7 +291,7 @@ class Agent {
 			Vec3D ctr = c.getLocation();
 			float distance = loc.distanceTo(ctr);
 
-			if (distance > 0 && distance < 100) {
+			if (distance > 0 && distance < 40) {
 				Vec3D steeringVector = steer(ctr, false);
 				steeringVector.normalizeTo(1 / distance);
 				steeringVector.scaleSelf(scores[i]);

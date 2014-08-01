@@ -22,10 +22,18 @@ class Vert {
 		brush.drawAtAbsolutePos(pos, 1f);
 	}
 	
+	
+	
 	void display() {    
-		parent.stroke(255, 0, 0);
-		parent.strokeWeight(1);
+		parent.stroke(100,0,0);
+		parent.strokeWeight(2f);
+		parent.noFill();
 		parent.point(pos.x, pos.y, pos.z);
+		parent.pushMatrix();
+		parent.translate(pos.x, pos.y, pos.z);
+		//parent.box(20);
+		parent.popMatrix();
+
 	}
 
 	Vec3D getLocation() {
@@ -36,3 +44,4 @@ class Vert {
 		return ID;
 	}
 }
+

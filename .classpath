@@ -88,8 +88,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/peasycam/peasycam.jar" sourcepath="/Users/yetian/Documents/Processing/libraries/peasycam/src">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="AgentsTrails/lib/user/peasycam"/>
 			<attribute name="javadoc_location" value="file:/Users/yetian/Documents/Processing/libraries/peasycam/reference/"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="AgentsTrails/lib/user/peasycam"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/toxiclibs_p5/toxiclibs_p5.jar">
@@ -107,12 +107,7 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="AgentsTrails/lib/user/volumeutils"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/Users/fluffyclouds/Documents/Processing/libraries/controlP5/library/controlP5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/IsoTutorial3b/lib/user/controlP5/controlP5.jar" sourcepath="/Users/fluffyclouds/Documents/Processing/libraries/controlP5/src">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/fluffyclouds/Documents/Processing/libraries/controlP5/reference/"/>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="IsoTutorial3b/lib/user/controlP5"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
