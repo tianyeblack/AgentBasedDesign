@@ -39,7 +39,7 @@ public class AgentsTrails extends PApplet {
 
 	//Agents variables
 	ArrayList<Agent> agents;
-	int pop=50;
+	int pop=300;
 	boolean runToggle = true;
 	boolean capture = false;
 	boolean record = false;
@@ -160,9 +160,9 @@ public class AgentsTrails extends PApplet {
 		surfaceA = new ArrayIsoSurface(volumeA);
 		surfaceB = new ArrayIsoSurface(volumeB);
 		surfaceC = new ArrayIsoSurface(volumeC);
-		brushA = new RoundBrush(volumeA, 3f);
-		brushB = new RoundBrush(volumeB, 2f);
-		brushC = new RoundBrush(volumeC, 4f);
+		brushA = new BoxBrush(volumeA, .01f);
+		brushB = new BoxBrush(volumeB, .001f);
+		brushC = new BoxBrush(volumeC, .002f);
 		
 		
 		gfx = new ToxiclibsSupport(this);
@@ -199,8 +199,11 @@ public class AgentsTrails extends PApplet {
 		stroke(0, 0, 192);
 		strokeWeight(.5f);
 		noFill();
-		box(bX,bY,bZ);
-
+	
+		pushMatrix();
+		//box(bX,bY,bZ/2);
+		translate (0,0,bZ);
+		popMatrix();
 		if (frameCount % 5 == 0 && compute) {
 			surfaceA.reset();
 			surfaceA.computeSurfaceMesh(meshA, ISO);
@@ -258,6 +261,8 @@ public class AgentsTrails extends PApplet {
 	public void keyPressed() {
 		if (key=='s'){
 			meshA.saveAsSTL(sketchPath(meshA.name + frameCount+ counter + ".stl"));
+			meshB.saveAsSTL(sketchPath(meshB.name + frameCount+ counter + ".stl"));
+			//meshC.saveAsSTL(sketchPath(meshC.name + frameCount+ counter + ".stl"));
 			counter = counter + 1;
 			println ("Saved Successfull");
 		}

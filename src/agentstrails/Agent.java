@@ -16,14 +16,14 @@ class Agent {
 	Vec3D acc = new Vec3D();// acceleration.
 	Vec3D start;
 
-	float maxvel = 2;// A floating variable for the maximum speed.
+	float maxvel = 3;// A floating variable for the maximum speed.
 	float maxForce = 20;
 	boolean runToggle = true;
 
 
 
 	// drop trail interval
-	int every = 5;
+	int every = 8;
 	// max number of trails
 	int trailNum = 200;
 
@@ -33,7 +33,7 @@ class Agent {
 
 	float[] scores;
 	// basic flocking functions magnitude
-	float alignment = .03f;
+	float alignment = .1f;
 	float cohesion = .9f;
 	float separation = 100f;
 	
@@ -55,8 +55,8 @@ class Agent {
 	
 	
 	float thresh = 50;
-	float isoBrushSize = .8f;
-	float isoBrushDensity= .5f;
+	float isoBrushSize;
+	float isoBrushDensity= .1f;
 	float agentBoxSize = 10;
 	
 	String agentType;
